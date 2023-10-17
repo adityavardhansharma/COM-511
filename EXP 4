@@ -1,0 +1,40 @@
+def linear_search(arr, target):
+    for i in range(len(arr)):
+        if arr[i] == target:
+            return i
+    return -1
+
+def binary_search(arr, target):
+    low, high = 0, len(arr) - 1
+
+    while low <= high:
+        mid = (low + high) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
+
+def main():
+    arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # Sorted list for binary search
+    target = int(input("Enter the number you want to search for: "))
+    
+    search_method = input("Choose a search method (linear/binary): ").strip().lower()
+
+    if search_method == "linear":
+        result = linear_search(arr, target)
+    elif search_method == "binary":
+        result = binary_search(arr, target)
+    else:
+        print("Invalid search method. Please choose 'linear' or 'binary'.")
+        return
+
+    if result != -1:
+        print(f"Element {target} found at index {result}.")
+    else:
+        print(f"Element {target} not found in the list.")
+
+if __name__ == "__main__":
+    main()
