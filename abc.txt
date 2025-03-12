@@ -1,0 +1,18 @@
+@echo off
+echo Creating persistent input box...
+
+:: Create a temporary VBScript file
+echo Set objShell = CreateObject("WScript.Shell") > "%temp%\persistentInput.vbs"
+echo Do >> "%temp%\persistentInput.vbs"
+echo     input = InputBox("Enter 'kyu' to exit:", "Persistent Input") >> "%temp%\persistentInput.vbs"
+echo     If input = "kyu" Then >> "%temp%\persistentInput.vbs"
+echo         WScript.Quit >> "%temp%\persistentInput.vbs"
+echo     End If >> "%temp%\persistentInput.vbs"
+echo Loop >> "%temp%\persistentInput.vbs"
+
+:: Run the VBScript
+cscript //nologo "%temp%\persistentInput.vbs"
+
+:: Clean up
+del "%temp%\persistentInput.vbs"
+echo Exiting...
