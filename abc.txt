@@ -1,18 +1,32 @@
 @echo off
 echo Creating persistent input box...
 
-:: Create a temporary VBScript file
-echo Set objShell = CreateObject("WScript.Shell") > "%temp%\persistentInput.vbs"
-echo Do >> "%temp%\persistentInput.vbs"
-echo     input = InputBox("Enter the secret keyword to exit:", "Secret Input") >> "%temp%\persistentInput.vbs"
-echo     If input = "kyu" Then >> "%temp%\persistentInput.vbs"
-echo         WScript.Quit >> "%temp%\persistentInput.vbs"
-echo     End If >> "%temp%\persistentInput.vbs"
-echo Loop >> "%temp%\persistentInput.vbs"
+:: Create a VBScript file that will keep running
+echo Set objFSO = CreateObject("Scripting.FileSystemObject") > "%temp%\persistent.vbs"
+echo Set objShell = CreateObject("WScript.Shell") >> "%temp%\persistent.vbs"
+echo ' Create a self-restarting mechanism >> "%temp%\persistent.vbs"
+echo Sub CreateRestarter >> "%temp%\persistent.vbs"
+echo     Set restartFile = objFSO.CreateTextFile("%temp%\restarter.vbs", True) >> "%temp%\persistent.vbs"
+echo     restartFile.WriteLine "Set objShell = CreateObject(""WScript.Shell"")" >> "%temp%\persistent.vbs"
+echo     restartFile.WriteLine "WScript.Sleep 1000" >> "%temp%\persistent.vbs"
+echo     restartFile.WriteLine "objShell.Run ""%temp%\persistent.vbs"", 0, False" >> "%temp%\persistent.vbs"
+echo     restartFile.Close >> "%temp%\persistent.vbs"
+echo     objShell.Run "%temp%\restarter.vbs", 0, False >> "%temp%\persistent.vbs"
+echo End Sub >> "%temp%\persistent.vbs"
+echo ' Run the main loop >> "%temp%\persistent.vbs"
+echo Do >> "%temp%\persistent.vbs"
+echo     CreateRestarter >> "%temp%\persistent.vbs"
+echo     input = InputBox("Enter the secret keyword to exit:", "Secret Input") >> "%temp%\persistent.vbs"
+echo     If input = "kyu" Then >> "%temp%\persistent.vbs"
+echo         ' Clean up restart mechanism >> "%temp%\persistent.vbs"
+echo         On Error Resume Next >> "%temp%\persistent.vbs"
+echo         objFSO.DeleteFile "%temp%\restarter.vbs" >> "%temp%\persistent.vbs"
+echo         WScript.Quit >> "%temp%\persistent.vbs"
+echo     End If >> "%temp%\persistent.vbs"
+echo Loop >> "%temp%\persistent.vbs"
 
-:: Run the VBScript
-cscript //nologo "%temp%\persistentInput.vbs"
+:: Start the VBScript hidden
+start /min wscript.exe "%temp%\persistent.vbs"
 
-:: Clean up
-del "%temp%\persistentInput.vbs"
-echo Exiting...
+:: Exit the batch file, but the VBScript will continue running
+exit
